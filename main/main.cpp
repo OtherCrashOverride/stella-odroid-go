@@ -618,6 +618,21 @@ void stella_init(const char* filename)
 static int32_t* sampleBuffer; //[2048];
 void stella_step(odroid_gamepad_state* gamepad)
 {
+    Event &ev = osystem->eventHandler().event();
+
+    ev.set(Event::Type(Event::JoystickZeroUp), gamepad->values[ODROID_INPUT_UP]);
+    ev.set(Event::Type(Event::JoystickZeroDown), gamepad->values[ODROID_INPUT_DOWN]);
+    ev.set(Event::Type(Event::JoystickZeroLeft), gamepad->values[ODROID_INPUT_LEFT]);
+    ev.set(Event::Type(Event::JoystickZeroRight), gamepad->values[ODROID_INPUT_RIGHT]);
+    ev.set(Event::Type(Event::JoystickZeroFire), gamepad->values[ODROID_INPUT_A]);
+    ev.set(Event::Type(Event::ConsoleReset), gamepad->values[ODROID_INPUT_SELECT]);
+
+    //Tell all input devices to read their state from the event structure
+    console->controller(Controller::Left).update();
+    console->controller(Controller::Right).update();
+    console->switches().update();
+
+
     //EMULATE
     TIA& tia = console->tia();
     tia.update();
