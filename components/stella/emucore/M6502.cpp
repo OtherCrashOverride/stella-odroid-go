@@ -47,6 +47,8 @@
 
 #include "M6502.hxx"
 
+#include <esp_attr.h>
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 M6502::M6502(uInt32 systemCyclesPerProcessorCycle, const Settings& settings)
   : myExecutionStatus(0),
@@ -196,7 +198,7 @@ inline void M6502::poke(uInt16 address, uInt8 value)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool M6502::execute(uInt32 number)
+IRAM_ATTR bool M6502::execute(uInt32 number)
 {
   // Clear all of the execution status bits except for the fatal error bit
   myExecutionStatus &= FatalErrorBit;

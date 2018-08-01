@@ -7,7 +7,7 @@
 # please read the ESP-IDF documents if you need to do this.
 #
 
-CFLAGS += -DSOUND_SUPPORT=1
+CFLAGS += -DSOUND_SUPPORT=1 -DJUMP_TABLES_IN_TEXT_SECTION=1
 #COMPONENT_DEPENDS :=
 COMPONENT_ADD_INCLUDEDIRS += ./common ./emucore ./gui
 COMPONENT_SRCDIRS := ./common ./emucore ./gui

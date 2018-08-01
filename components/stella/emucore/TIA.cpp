@@ -677,7 +677,7 @@ inline void TIA::endFrame()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::scanlinePos(uInt16& x, uInt16& y) const
+inline bool TIA::scanlinePos(uInt16& x, uInt16& y) const
 {
   if(myPartialFrameFlag)
   {
@@ -704,7 +704,7 @@ bool TIA::scanlinePos(uInt16& x, uInt16& y) const
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::enableBits(bool mode)
+inline void TIA::enableBits(bool mode)
 {
   toggleBit(P0Bit, mode ? 1 : 0);
   toggleBit(P1Bit, mode ? 1 : 0);
@@ -715,7 +715,7 @@ void TIA::enableBits(bool mode)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::toggleBit(TIABit b, uInt8 mode)
+inline bool TIA::toggleBit(TIABit b, uInt8 mode)
 {
   // If mode is 0 or 1, use it as a boolean (off or on)
   // Otherwise, flip the state
@@ -727,7 +727,7 @@ bool TIA::toggleBit(TIABit b, uInt8 mode)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::toggleBits()
+inline bool TIA::toggleBits()
 {
   myBitsEnabled = !myBitsEnabled;
   enableBits(myBitsEnabled);
@@ -735,7 +735,7 @@ bool TIA::toggleBits()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::enableCollisions(bool mode)
+inline void TIA::enableCollisions(bool mode)
 {
   toggleCollision(P0Bit, mode ? 1 : 0);
   toggleCollision(P1Bit, mode ? 1 : 0);
@@ -746,7 +746,7 @@ void TIA::enableCollisions(bool mode)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::toggleCollision(TIABit b, uInt8 mode)
+inline bool TIA::toggleCollision(TIABit b, uInt8 mode)
 {
   uInt16 enabled = myCollisionEnabledMask >> 16;
 
@@ -778,7 +778,7 @@ bool TIA::toggleCollision(TIABit b, uInt8 mode)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::toggleCollisions()
+inline bool TIA::toggleCollisions()
 {
   myCollisionsEnabled = !myCollisionsEnabled;
   enableCollisions(myCollisionsEnabled);
@@ -786,14 +786,14 @@ bool TIA::toggleCollisions()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::toggleHMOVEBlank()
+inline bool TIA::toggleHMOVEBlank()
 {
   myAllowHMOVEBlanks = myAllowHMOVEBlanks ? false : true;
   return myAllowHMOVEBlanks;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::toggleFixedColors(uInt8 mode)
+inline bool TIA::toggleFixedColors(uInt8 mode)
 {
   // If mode is 0 or 1, use it as a boolean (off or on)
   // Otherwise, flip the state
@@ -858,7 +858,7 @@ bool TIA::toggleFixedColors(uInt8 mode)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::driveUnusedPinsRandom(uInt8 mode)
+inline bool TIA::driveUnusedPinsRandom(uInt8 mode)
 {
   // If mode is 0 or 1, use it as a boolean (off or on)
   // Otherwise, return the state
@@ -1241,7 +1241,7 @@ inline void TIA::waitHorizontalRSync()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::clearBuffers()
+inline void TIA::clearBuffers()
 {
   memset(myCurrentFrameBuffer, 0, 160 * 320);
   memset(myPreviousFrameBuffer, 0, 160 * 320);
@@ -1272,7 +1272,7 @@ inline uInt8 TIA::dumpedInputPort(int resistance)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt8 TIA::peek(uInt16 addr)
+IRAM_ATTR uInt8 TIA::peek(uInt16 addr)
 {
   // Update frame to current color clock before we look at anything!
   updateFrame(mySystem->cycles() * 3);
@@ -1373,7 +1373,7 @@ uInt8 TIA::peek(uInt16 addr)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool TIA::poke(uInt16 addr, uInt8 value)
+IRAM_ATTR bool TIA::poke(uInt16 addr, uInt8 value)
 {
   addr = addr & 0x003f;
 
@@ -2214,7 +2214,7 @@ bool TIA::poke(uInt16 addr, uInt8 value)
 // Most of the ideas in these methods come from MESS.
 // (used with permission from Wilbert Pol)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::pokeHMP0(uInt8 value, Int32 clock)
+IRAM_ATTR void TIA::pokeHMP0(uInt8 value, Int32 clock)
 {
   value &= 0xF0;
   if(myHMP0 == value)
@@ -2248,7 +2248,7 @@ void TIA::pokeHMP0(uInt8 value, Int32 clock)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::pokeHMP1(uInt8 value, Int32 clock)
+IRAM_ATTR void TIA::pokeHMP1(uInt8 value, Int32 clock)
 {
   value &= 0xF0;
   if(myHMP1 == value)
@@ -2282,7 +2282,7 @@ void TIA::pokeHMP1(uInt8 value, Int32 clock)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::pokeHMM0(uInt8 value, Int32 clock)
+IRAM_ATTR void TIA::pokeHMM0(uInt8 value, Int32 clock)
 {
   value &= 0xF0;
   if(myHMM0 == value)
@@ -2315,7 +2315,7 @@ void TIA::pokeHMM0(uInt8 value, Int32 clock)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::pokeHMM1(uInt8 value, Int32 clock)
+IRAM_ATTR void TIA::pokeHMM1(uInt8 value, Int32 clock)
 {
   value &= 0xF0;
   if(myHMM1 == value)
@@ -2348,7 +2348,7 @@ void TIA::pokeHMM1(uInt8 value, Int32 clock)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::pokeHMBL(uInt8 value, Int32 clock)
+IRAM_ATTR void TIA::pokeHMBL(uInt8 value, Int32 clock)
 {
   value &= 0xF0;
   if(myHMBL == value)
