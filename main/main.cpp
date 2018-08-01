@@ -48,19 +48,23 @@ QueueHandle_t vidQueue;
 #define STELLA_WIDTH 160
 #define STELLA_HEIGHT 210
 //uint16_t* framebuffer; //[STELLA_WIDTH * STELLA_HEIGHT * sizeof(uint16_t)];
-uint16_t framebuffer[STELLA_WIDTH * STELLA_HEIGHT * sizeof(uint16_t)];
+//uint16_t framebuffer[STELLA_WIDTH * STELLA_HEIGHT];
+uint8_t framebuffer[STELLA_WIDTH * STELLA_HEIGHT];
+uint16_t pal16[256];
 
 void videoTask(void *arg)
 {
     while(1)
     {
-        uint16_t* param;
+        uint8_t* param;
         xQueuePeek(vidQueue, &param, portMAX_DELAY);
         //
         // if (param == (uint16_t*)1)
         //     break;
 
-        ili9341_write_frame_rectangleLE(0, 0, STELLA_WIDTH, STELLA_HEIGHT, framebuffer);
+        //ili9341_write_frame_rectangleLE(0, 0, STELLA_WIDTH, STELLA_HEIGHT, framebuffer);
+        memcpy(framebuffer, param, sizeof(framebuffer));
+        ili9341_write_frame_atari2600(framebuffer, pal16);
 
         xQueueReceive(vidQueue, &param, portMAX_DELAY);
 
@@ -528,7 +532,7 @@ static Console *console = 0;
 static Cartridge *cartridge = 0;
 static Settings *settings = 0;
 static OSystem* osystem;
-uint16_t pal16[256];
+
 
 void stella_init(const char* filename)
 {
@@ -620,14 +624,14 @@ void stella_step(odroid_gamepad_state* gamepad)
 
     //VIDEO
     //Get the frame info from stella
-    int videoWidth = tia.width();
-    int videoHeight = tia.height();
+    //int videoWidth = tia.width();
+    //int videoHeight = tia.height();
 
-    //Copy the frame from stella
-    for (int i = 0; i < videoHeight * videoWidth; ++i)
-    {
-        framebuffer[i] = pal16[tia.currentFrameBuffer()[i]];
-    }
+    // //Copy the frame from stella
+    // for (int i = 0; i < videoHeight * videoWidth; ++i)
+    // {
+    //     framebuffer[i] = pal16[tia.currentFrameBuffer()[i]];
+    // }
 
     //Process one frame of audio from stella
     static uint32_t tiaSamplesPerFrame = (uint32_t)(31400.0f/console->getFramerate());
@@ -715,12 +719,14 @@ extern "C" void app_main()
         stella_step(&gamepad);
         //printf("stepped.\n");
 
-        UBaseType_t count = uxQueueSpacesAvailable(vidQueue);
         //if (!(frame & 1))
+        UBaseType_t count = uxQueueSpacesAvailable(vidQueue);
         if (count > 0)
         {
-            //memcpy(backbuffer, framebuffer, sizeof(backbuffer));
-            xQueueSend(vidQueue, &framebuffer, portMAX_DELAY);
+            TIA& tia = console->tia();
+            uint8_t* fb = tia.currentFrameBuffer();
+
+            xQueueSend(vidQueue, &fb, portMAX_DELAY);
 
             ++renderFrames;
         }
