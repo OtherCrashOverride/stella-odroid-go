@@ -1,3 +1,4 @@
+#pragma GCC optimize ("O3")
 //============================================================================
 //
 // MM     MM  6666  555555  0000   2222
@@ -25,6 +26,8 @@
 #include "M6532.hxx"
 #include "TIA.hxx"
 #include "System.hxx"
+
+#include <esp_attr.h>
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 System::System(uInt16 n, uInt16 m)
@@ -159,60 +162,60 @@ void System::resetCycles()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void System::setPageAccess(uInt16 page, const PageAccess& access)
-{
-  // Make sure the page is within range
-  assert(page < myNumberOfPages);
-
-  // Make sure the access methods make sense
-  assert(access.device != 0);
-
-  myPageAccessTable[page] = access;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const System::PageAccess& System::getPageAccess(uInt16 page) const
-{
-  // Make sure the page is within range
-  assert(page < myNumberOfPages);
-
-  return myPageAccessTable[page];
-}
+// inline void System::setPageAccess(uInt16 page, const PageAccess& access)
+// {
+//   // Make sure the page is within range
+//   assert(page < myNumberOfPages);
+//
+//   // Make sure the access methods make sense
+//   assert(access.device != 0);
+//
+//   myPageAccessTable[page] = access;
+// }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-System::PageAccessType System::getPageAccessType(uInt16 addr) const
-{
-  return myPageAccessTable[(addr & myAddressMask) >> myPageShift].type;
-}
+// inline const System::PageAccess& System::getPageAccess(uInt16 page) const
+// {
+//   // Make sure the page is within range
+//   assert(page < myNumberOfPages);
+//
+//   return myPageAccessTable[page];
+// }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void System::setDirtyPage(uInt16 addr)
-{
-  myPageIsDirtyTable[(addr & myAddressMask) >> myPageShift] = true;
-}
+// inline System::PageAccessType System::getPageAccessType(uInt16 addr) const
+// {
+//   return myPageAccessTable[(addr & myAddressMask) >> myPageShift].type;
+// }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool System::isPageDirty(uInt16 start_addr, uInt16 end_addr) const
-{
-  uInt16 start_page = (start_addr & myAddressMask) >> myPageShift;
-  uInt16 end_page = (end_addr & myAddressMask) >> myPageShift;
-
-  for(uInt16 page = start_page; page <= end_page; ++page)
-    if(myPageIsDirtyTable[page])
-      return true;
-
-  return false;
-}
+// inline void System::setDirtyPage(uInt16 addr)
+// {
+//   myPageIsDirtyTable[(addr & myAddressMask) >> myPageShift] = true;
+// }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void System::clearDirtyPages()
-{
-  for(uInt32 i = 0; i < myNumberOfPages; ++i)
-    myPageIsDirtyTable[i] = false;
-}
+// inline bool System::isPageDirty(uInt16 start_addr, uInt16 end_addr) const
+// {
+//   uInt16 start_page = (start_addr & myAddressMask) >> myPageShift;
+//   uInt16 end_page = (end_addr & myAddressMask) >> myPageShift;
+//
+//   for(uInt16 page = start_page; page <= end_page; ++page)
+//     if(myPageIsDirtyTable[page])
+//       return true;
+//
+//   return false;
+// }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt8 System::peek(uInt16 addr, uInt8 flags)
+// inline void System::clearDirtyPages()
+// {
+//   for(uInt32 i = 0; i < myNumberOfPages; ++i)
+//     myPageIsDirtyTable[i] = false;
+// }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IRAM_ATTR uInt8 System::peek(uInt16 addr, uInt8 flags)
 {
   PageAccess& access = myPageAccessTable[(addr & myAddressMask) >> myPageShift];
 
@@ -224,7 +227,7 @@ uInt8 System::peek(uInt16 addr, uInt8 flags)
     access.device->setAccessFlags(addr, flags);
 #endif
 
-  // See if this page uses direct accessing or not 
+  // See if this page uses direct accessing or not
   uInt8 result;
   if(access.directPeekBase)
     result = *(access.directPeekBase + (addr & myPageMask));
@@ -240,12 +243,12 @@ uInt8 System::peek(uInt16 addr, uInt8 flags)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void System::poke(uInt16 addr, uInt8 value)
+IRAM_ATTR void System::poke(uInt16 addr, uInt8 value)
 {
   uInt16 page = (addr & myAddressMask) >> myPageShift;
   PageAccess& access = myPageAccessTable[page];
-  
-  // See if this page uses direct accessing or not 
+
+  // See if this page uses direct accessing or not
   if(access.directPokeBase)
   {
     // Since we have direct access to this poke, we can dirty its page
@@ -293,13 +296,13 @@ void System::setAccessFlags(uInt16 addr, uInt8 flags)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void System::lockDataBus()
+inline void System::lockDataBus()
 {
   myDataBusLocked = true;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void System::unlockDataBus()
+inline void System::unlockDataBus()
 {
   myDataBusLocked = false;
 }

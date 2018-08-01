@@ -28,6 +28,8 @@
 
 #include "M6532.hxx"
 
+#include <esp_attr.h>
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 M6532::M6532(const Console& console, const Settings& settings)
   : myConsole(console),
@@ -83,7 +85,7 @@ void M6532::systemCyclesReset()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void M6532::update()
+IRAM_ATTR void M6532::update()
 {
   Controller& port0 = myConsole.controller(Controller::Left);
   Controller& port1 = myConsole.controller(Controller::Right);
@@ -133,7 +135,7 @@ void M6532::install(System& system, Device& device)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt8 M6532::peek(uInt16 addr)
+IRAM_ATTR uInt8 M6532::peek(uInt16 addr)
 {
   // Access RAM directly.  Originally, accesses to RAM could bypass
   // this method and its pages could be installed directly into the
@@ -230,7 +232,7 @@ uInt8 M6532::peek(uInt16 addr)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool M6532::poke(uInt16 addr, uInt8 value)
+IRAM_ATTR bool M6532::poke(uInt16 addr, uInt8 value)
 {
   // Access RAM directly.  Originally, accesses to RAM could bypass
   // this method and its pages could be installed directly into the
