@@ -174,7 +174,7 @@ class SoundSDL : public Sound
     {
       uInt16 addr;
       uInt8 value;
-      double delta;
+      float delta;
     };
 
     /**
@@ -210,7 +210,7 @@ class SoundSDL : public Sound
         /**
           Return the duration of all the items in the queue.
         */
-        double duration();
+        float duration();
 
         /**
           Enqueue the specified object.

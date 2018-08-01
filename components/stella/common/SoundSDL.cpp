@@ -1,3 +1,4 @@
+#pragma GCC optimize ("O3")
 //============================================================================
 //
 //   SSSS    tt          lll  lll
@@ -190,8 +191,8 @@ void SoundSDL::set(uInt16 addr, uInt8 value, Int32 cycle)
 {
   // First, calculate how many seconds would have past since the last
   // register write on a real 2600
-  double delta = (((double)(cycle - myLastRegisterSetCycle)) /
-      (1193191.66666667));
+  float delta = (((float)(cycle - myLastRegisterSetCycle)) /
+      (1193191.66666667f));
 
   // Now, adjust the time based on the frame rate the user has selected. For
   // the sound to "scale" correctly, we have to know the games real frame
@@ -211,11 +212,11 @@ void SoundSDL::set(uInt16 addr, uInt8 value, Int32 cycle)
 void SoundSDL::processFragment(Int16* stream, uInt32 length)
 {
     const uInt32 channels = 2;
-    double streamLengthInSecs = (double)length/(double)31400;
-    double excessStreamSecs = myRegWriteQueue.duration() - streamLengthInSecs;
-    if(excessStreamSecs > 0.0)
+    float streamLengthInSecs = (float)length/(float)31400;
+    float excessStreamSecs = myRegWriteQueue.duration() - streamLengthInSecs;
+    if(excessStreamSecs > 0.0f)
     {
-        double removed = 0.0;
+        float removed = 0.0f;
         while(removed < excessStreamSecs)
         {
             RegWrite& info = myRegWriteQueue.front();
@@ -225,10 +226,10 @@ void SoundSDL::processFragment(Int16* stream, uInt32 length)
         }
     }
 
-  double position = 0.0;
-  double remaining = length;
+  float position = 0.0f;
+  float remaining = length;
 
-  while(remaining > 0.0)
+  while(remaining > 0.0f)
   {
     if(myRegWriteQueue.size() == 0)
     {
@@ -251,18 +252,18 @@ void SoundSDL::processFragment(Int16* stream, uInt32 length)
       RegWrite& info = myRegWriteQueue.front();
 
       // How long will the remaining samples in the fragment take to play
-      double duration = remaining / (double)31400;
+      float duration = remaining / (float)31400;
 
       // Does the register update occur before the end of the fragment?
       if(info.delta <= duration)
       {
         // If the register update time hasn't already passed then
         // process samples upto the point where it should occur
-        if(info.delta > 0.0)
+        if(info.delta > 0.0f)
         {
           // Process the fragment upto the next TIA register write.  We
           // round the count passed to process up if needed.
-          double samples = (31400 * info.delta);
+          float samples = (31400 * info.delta);
           myTIASound.process(stream + ((uInt32)position * channels),
               (uInt32)samples + (uInt32)(position + samples) -
               ((uInt32)position + (uInt32)samples));
@@ -448,9 +449,9 @@ void SoundSDL::RegWriteQueue::dequeue()
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-double SoundSDL::RegWriteQueue::duration()
+float SoundSDL::RegWriteQueue::duration()
 {
-  double duration = 0.0;
+  float duration = 0.0f;
   for(uInt32 i = 0; i < mySize; ++i)
   {
     duration += myBuffer[(myHead + i) % myCapacity].delta;

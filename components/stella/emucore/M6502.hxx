@@ -40,7 +40,7 @@ typedef Common::Array<Expression*> ExpressionList;
   This class provides a high compatibility 6502 microprocessor emulator.
 
   The memory accesses and cycle counts it generates are valid at the
-  sub-instruction level and "false" reads are generated (such as the ones 
+  sub-instruction level and "false" reads are generated (such as the ones
   produced by the Indirect,X addressing when it crosses a page boundary).
   This provides provides better compatibility for hardware that has side
   effects and for games which are very time sensitive.
@@ -56,8 +56,8 @@ class M6502 : public Serializable
 
   public:
     /**
-      Create a new 6502 microprocessor with the specified cycle 
-      multiplier.  The cycle multiplier is the number of system cycles 
+      Create a new 6502 microprocessor with the specified cycle
+      multiplier.  The cycle multiplier is the number of system cycles
       per processor cycle.
 
       @param systemCyclesPerProcessorCycle The cycle multiplier
@@ -79,7 +79,7 @@ class M6502 : public Serializable
     void install(System& system);
 
     /**
-      Reset the processor to its power-on state.  This method should not 
+      Reset the processor to its power-on state.  This method should not
       be invoked until the entire 6502 system is constructed and installed
       since it involves reading the reset vector from memory.
     */
@@ -88,12 +88,12 @@ class M6502 : public Serializable
     /**
       Request a maskable interrupt
     */
-    void irq() { myExecutionStatus |= MaskableInterruptBit; }
+    inline void irq() { myExecutionStatus |= MaskableInterruptBit; }
 
     /**
       Request a non-maskable interrupt
     */
-    void nmi() { myExecutionStatus |= NonmaskableInterruptBit; }
+    inline void nmi() { myExecutionStatus |= NonmaskableInterruptBit; }
 
     /**
       Execute instructions until the specified number of instructions
@@ -106,11 +106,11 @@ class M6502 : public Serializable
     bool execute(uInt32 number);
 
     /**
-      Tell the processor to stop executing instructions.  Invoking this 
-      method while the processor is executing instructions will stop 
+      Tell the processor to stop executing instructions.  Invoking this
+      method while the processor is executing instructions will stop
       execution as soon as possible.
     */
-    void stop() { myExecutionStatus |= StopExecutionBit; }
+    inline void stop() { myExecutionStatus |= StopExecutionBit; }
 
     /**
       Answer true iff a fatal error has occured from which the processor
@@ -118,23 +118,23 @@ class M6502 : public Serializable
 
       @return true iff a fatal error has occured
     */
-    bool fatalError() const { return myExecutionStatus & FatalErrorBit; }
-  
+    inline bool fatalError() const { return myExecutionStatus & FatalErrorBit; }
+
     /**
       Get the 16-bit value of the Program Counter register.
 
       @return The program counter register
     */
-    uInt16 getPC() const { return PC; }
+    inline uInt16 getPC() const { return PC; }
 
     /**
       Answer true iff the last memory access was a read.
 
       @return true iff last access was a read
-    */ 
-    bool lastAccessWasRead() const { return myLastAccessWasRead; }
+    */
+    inline bool lastAccessWasRead() const { return myLastAccessWasRead; }
 
-    /**                                                                    
+    /**
       Return the last address that was part of a read/peek.  Note that
       reads which are part of a write are not considered here, unless
       they're not the same as the last write address.  This eliminates
@@ -142,46 +142,46 @@ class M6502 : public Serializable
 
       @return The address of the last read
     */
-    uInt16 lastReadAddress() const {
+    inline uInt16 lastReadAddress() const {
       return myLastPokeAddress ?
         (myLastPokeAddress != myLastPeekAddress ? myLastPeekAddress : 0) :
         myLastPeekAddress;
     }
 
-    /**                                                                    
+    /**
       Return the source of the address that was used for a write/poke.
       Note that this isn't the same as the address that is poked, but
       is instead the address of the *data* that is poked (if any).
 
       @return The address of the data used in the last poke, else 0
     */
-    uInt16 lastDataAddressForPoke() const { return myDataAddressForPoke; }
+    inline uInt16 lastDataAddressForPoke() const { return myDataAddressForPoke; }
 
-    /**                                                                    
+    /**
       Return the last data address used as part of a peek operation for
       the S/A/X/Y registers.  Note that if an address wasn't used (as in
       immediate mode), then the address is -1.
 
       @return The address of the data used in the last peek, else -1
     */
-    Int32 lastSrcAddressS() const { return myLastSrcAddressS; }
-    Int32 lastSrcAddressA() const { return myLastSrcAddressA; }
-    Int32 lastSrcAddressX() const { return myLastSrcAddressX; }
-    Int32 lastSrcAddressY() const { return myLastSrcAddressY; }
+    inline Int32 lastSrcAddressS() const { return myLastSrcAddressS; }
+    inline Int32 lastSrcAddressA() const { return myLastSrcAddressA; }
+    inline Int32 lastSrcAddressX() const { return myLastSrcAddressX; }
+    inline Int32 lastSrcAddressY() const { return myLastSrcAddressY; }
 
     /**
       Get the total number of instructions executed so far.
 
       @return The number of executed instructions
     */
-    int totalInstructionCount() const { return myTotalInstructionCount; }
+    inline int totalInstructionCount() const { return myTotalInstructionCount; }
 
     /**
       Get the number of memory accesses to distinct memory locations
 
       @return The number of memory accesses to distinct memory locations
     */
-    uInt32 distinctAccesses() const { return myNumberOfDistinctAccesses; }
+    inline uInt32 distinctAccesses() const { return myNumberOfDistinctAccesses; }
 
     /**
       Saves the current state of this device to the given Serializer.
@@ -204,7 +204,7 @@ class M6502 : public Serializable
 
       @return The name of the device
     */
-    string name() const { return "M6502"; }
+    inline string name() const { return "M6502"; }
 
 #ifdef DEBUGGER_SUPPORT
   public:
@@ -254,7 +254,7 @@ class M6502 : public Serializable
 
       @return The processor status register
     */
-    uInt8 PS() const {
+    inline uInt8 PS() const {
       uInt8 ps = 0x20;
 
       if(N)     ps |= 0x80;
@@ -273,7 +273,7 @@ class M6502 : public Serializable
 
       @param ps The value to set the processor status register to
     */
-    void PS(uInt8 ps) {
+    inline void PS(uInt8 ps) {
       N = ps & 0x80;
       V = ps & 0x40;
       B = true;        // B = ps & 0x10;  The 6507's B flag always true
@@ -304,12 +304,12 @@ class M6502 : public Serializable
     bool notZ;  // Z flag complement for processor status register
     bool C;     // C flag for processor status register
 
-    /** 
-      Bit fields used to indicate that certain conditions need to be 
-      handled such as stopping execution, fatal errors, maskable interrupts 
+    /**
+      Bit fields used to indicate that certain conditions need to be
+      handled such as stopping execution, fatal errors, maskable interrupts
       and non-maskable interrupts (in myExecutionStatus)
     */
-    enum 
+    enum
     {
       StopExecutionBit = 0x01,
       FatalErrorBit = 0x02,
@@ -317,18 +317,18 @@ class M6502 : public Serializable
       NonmaskableInterruptBit = 0x08
     };
     uInt8 myExecutionStatus;
-  
+
     /// Pointer to the system the processor is installed in or the null pointer
     System* mySystem;
 
     /// Reference to the settings
     const Settings& mySettings;
 
-    /// Indicates the number of system cycles per processor cycle 
+    /// Indicates the number of system cycles per processor cycle
     const uInt32 mySystemCyclesPerProcessorCycle;
 
     /// Table of system cycles for each instruction
-    uInt32 myInstructionSystemCycleTable[256]; 
+    uInt32 myInstructionSystemCycleTable[256];
 
     /// Indicates if the last memory access was a read or not
     bool myLastAccessWasRead;
@@ -379,10 +379,10 @@ class M6502 : public Serializable
 
   private:
     /**
-      Table of instruction processor cycle times.  In some cases additional 
+      Table of instruction processor cycle times.  In some cases additional
       cycles will be added during the execution of an instruction.
     */
-    static uInt32 ourInstructionCycleTable[256];
+    static const uInt32 ourInstructionCycleTable[256];
 };
 
 #endif

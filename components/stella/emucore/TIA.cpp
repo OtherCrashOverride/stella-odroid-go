@@ -1,3 +1,4 @@
+#pragma GCC optimize ("O3")
 //============================================================================
 //
 //   SSSS    tt          lll  lll
@@ -37,6 +38,8 @@
 #include "TIATables.hxx"
 
 #include "TIA.hxx"
+
+#include <esp_attr.h>
 
 #define HBLANK 68
 
@@ -935,7 +938,7 @@ void TIA::updateScanlineByTrace(int target)
 #endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::updateFrame(Int32 clock)
+IRAM_ATTR void TIA::updateFrame(Int32 clock)
 {
   // See if we've already updated this portion of the screen
   if((clock < myClockStartDisplay) ||

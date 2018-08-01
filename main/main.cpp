@@ -375,9 +375,9 @@ static const char* ChooseFile()
 {
     const char* result = NULL;
 
-    //fb = (uint16_t*)heap_caps_malloc(320 * 240 * 2, MALLOC_CAP_SPIRAM);
-    //if (!fb) abort();
-    fb = (uint16_t*)ESP32_PSRAM;
+    fb = (uint16_t*)heap_caps_malloc(320 * 240 * 2, MALLOC_CAP_SPIRAM);
+    if (!fb) abort();
+    //fb = (uint16_t*)ESP32_PSRAM;
 
     UG_Init(&gui, pset, 320, 240);
 
@@ -532,7 +532,7 @@ static Console *console = 0;
 static Cartridge *cartridge = 0;
 static Settings *settings = 0;
 static OSystem* osystem;
-
+static uint32_t tiaSamplesPerFrame;
 
 void stella_init(const char* filename)
 {
@@ -613,9 +613,11 @@ void stella_init(const char* filename)
         //rgb565 = (rgb565 >> 8) | (rgb565 << 8);
         pal16[i] = rgb565;
     }
+
+    tiaSamplesPerFrame = (uint32_t)(31400.0f/console->getFramerate());
 }
 
-static int32_t* sampleBuffer; //[2048];
+static int32_t* sampleBuffer;
 void stella_step(odroid_gamepad_state* gamepad)
 {
     Event &ev = osystem->eventHandler().event();
@@ -649,7 +651,7 @@ void stella_step(odroid_gamepad_state* gamepad)
     // }
 
     //Process one frame of audio from stella
-    static uint32_t tiaSamplesPerFrame = (uint32_t)(31400.0f/console->getFramerate());
+    //static uint32_t tiaSamplesPerFrame = (uint32_t)(31400.0f/console->getFramerate());
 
     if (sampleBuffer == NULL)
     {

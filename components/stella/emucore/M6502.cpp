@@ -1,3 +1,4 @@
+#pragma GCC optimize ("O3")
 //============================================================================
 //
 // MM     MM  6666  555555  0000   2222
@@ -272,7 +273,7 @@ bool M6502::execute(uInt32 number)
     }
 
     // See if we need to handle an interrupt
-    if((myExecutionStatus & MaskableInterruptBit) || 
+    if((myExecutionStatus & MaskableInterruptBit) ||
         (myExecutionStatus & NonmaskableInterruptBit))
     {
       // Yes, so handle the interrupt
@@ -493,7 +494,7 @@ void M6502::setTraps(PackedBitArray *read, PackedBitArray *write)
 #endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-uInt32 M6502::ourInstructionCycleTable[256] = {
+const uInt32 M6502::ourInstructionCycleTable[256] = {
 //  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
     7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,  // 0
     2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,  // 1
