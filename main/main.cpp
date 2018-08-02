@@ -186,8 +186,8 @@ int GetFiles(const char* path, const char* extension, char*** filesOut)
     const int MAX_FILES = 100;
 
     int count = 0;
-    //char** result = (char**)heap_caps_malloc(MAX_FILES * sizeof(void*), MALLOC_CAP_SPIRAM);
-    char** result = (char**)malloc(MAX_FILES * sizeof(void*));
+    char** result = (char**)heap_caps_malloc(MAX_FILES * sizeof(void*), MALLOC_CAP_SPIRAM);
+    //char** result = (char**)malloc(MAX_FILES * sizeof(void*));
     if (!result) abort();
 
     //*filesOut = result;
@@ -247,8 +247,8 @@ int GetFiles(const char* path, const char* extension, char*** filesOut)
             {
                 if (strcmp(temp, extension) == 0)
                 {
-                    //result[count] = (char*)heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM);
-                    result[count] = (char*)malloc(len + 1);
+                    result[count] = (char*)heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM);
+                    //result[count] = (char*)malloc(len + 1);
                     if (!result[count])
                     {
                         abort();
@@ -263,6 +263,7 @@ int GetFiles(const char* path, const char* extension, char*** filesOut)
         }
     }
 
+    closedir(dir);
     free(temp);
     //CloseSDCard();
 
