@@ -167,6 +167,29 @@ static void quickSort(char* arr[], int low, int high)
     }
 }
 
+IRAM_ATTR static void bubble_sort(char** files, int count)
+{
+    int n = count;
+    bool swapped = true;
+
+    while (n > 0)
+    {
+        int newn = 0;
+        for (int i = 1; i < n; ++i)
+        {
+            if (strcicmp(files[i - 1], files[i]) > 0)
+            {
+                char* temp = files[i - 1];
+                files[i - 1] = files[i];
+                files[i] = temp;
+
+                newn = i;
+            }
+        } //end for
+        n = newn;
+    } //until n = 0
+}
+
 static void SortFiles(char** files, int count)
 {
     int n = count;
@@ -174,7 +197,8 @@ static void SortFiles(char** files, int count)
 
     if (count > 1)
     {
-        quickSort(files, 0, count - 1);
+        //quickSort(files, 0, count - 1);
+        bubble_sort(files, count - 1);
     }
 }
 
@@ -183,7 +207,7 @@ int GetFiles(const char* path, const char* extension, char*** filesOut)
     //printf("GetFiles: path='%s', extension='%s'\n", path, extension);
     //OpenSDCard();
 
-    const int MAX_FILES = 100;
+    const int MAX_FILES = 4096;
 
     int count = 0;
     char** result = (char**)heap_caps_malloc(MAX_FILES * sizeof(void*), MALLOC_CAP_SPIRAM);
@@ -307,6 +331,8 @@ UG_OBJECT objbuffwnd1[MAX_OBJECTS];
 
 void DrawPage(char** files, int fileCount, int currentItem)
 {
+    static const size_t MAX_DISPLAY_LENGTH = 38;
+
     int page = currentItem / ITEM_COUNT;
     page *= ITEM_COUNT;
 
@@ -355,9 +381,14 @@ void DrawPage(char** files, int fileCount, int currentItem)
 			char* fileName = files[page + line];
 			if (!fileName) abort();
 
-			displayStrings[line] = (char*)malloc(strlen(fileName) + 1);
-            strcpy(displayStrings[line], fileName);
-            displayStrings[line][strlen(fileName) - 4] = 0;
+            size_t fileNameLength = strlen(fileName) - 4; // remove extension
+            size_t displayLength = (fileNameLength <= MAX_DISPLAY_LENGTH) ? fileNameLength : MAX_DISPLAY_LENGTH;
+
+            displayStrings[line] = (char*)heap_caps_malloc(displayLength + 1, MALLOC_CAP_SPIRAM);
+            if (!displayStrings[line]) abort();
+
+            strncpy(displayStrings[line], fileName, displayLength);
+            displayStrings[line][displayLength] = 0; // NULL terminate
 
 	        UG_TextboxSetText(&window1, id, displayStrings[line]);
 	    }
@@ -549,8 +580,8 @@ void stella_init(const char* filename)
     size_t size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    //void* data = heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
-    void* data = malloc(size);
+    void* data = heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
+    //void* data = malloc(size);
     if (!data) abort();
 
     size_t count = fread(data, 1, size, fp);
@@ -691,6 +722,7 @@ extern "C" void app_main()
     ili9341_init();
     ili9341_clear(0x0000);
 
+    //vTaskDelay(500 / portTICK_RATE_MS);
 
     // Open SD card
     esp_err_t r = odroid_sdcard_open(SD_BASE_PATH);
