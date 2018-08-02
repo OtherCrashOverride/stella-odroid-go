@@ -655,6 +655,7 @@ void stella_init(const char* filename)
 static int32_t* sampleBuffer;
 void stella_step(odroid_gamepad_state* gamepad)
 {
+    // Process input
     Event &ev = osystem->eventHandler().event();
 
     ev.set(Event::Type(Event::JoystickZeroUp), gamepad->values[ODROID_INPUT_UP]);
@@ -664,31 +665,18 @@ void stella_step(odroid_gamepad_state* gamepad)
     ev.set(Event::Type(Event::JoystickZeroFire), gamepad->values[ODROID_INPUT_A]);
     ev.set(Event::Type(Event::ConsoleSelect), gamepad->values[ODROID_INPUT_SELECT]);
     ev.set(Event::Type(Event::ConsoleReset), gamepad->values[ODROID_INPUT_START]);
-    
+
     //Tell all input devices to read their state from the event structure
     console->controller(Controller::Left).update();
     console->controller(Controller::Right).update();
     console->switches().update();
 
 
-    //EMULATE
+    // Emulate
     TIA& tia = console->tia();
     tia.update();
 
-    //VIDEO
-    //Get the frame info from stella
-    //int videoWidth = tia.width();
-    //int videoHeight = tia.height();
-
-    // //Copy the frame from stella
-    // for (int i = 0; i < videoHeight * videoWidth; ++i)
-    // {
-    //     framebuffer[i] = pal16[tia.currentFrameBuffer()[i]];
-    // }
-
-    //Process one frame of audio from stella
-    //static uint32_t tiaSamplesPerFrame = (uint32_t)(31400.0f/console->getFramerate());
-
+    // Audio
     if (sampleBuffer == NULL)
     {
         sampleBuffer = (int32_t*)malloc(tiaSamplesPerFrame * sizeof(int32_t));
@@ -778,13 +766,19 @@ extern "C" void app_main()
             esp_restart();
         }
 
+        if (!last_gamepad.values[ODROID_INPUT_VOLUME] &&
+            gamepad.values[ODROID_INPUT_VOLUME])
+        {
+            odroid_audio_volume_change();
+            printf("%s: Volume=%d\n", __func__, odroid_audio_volume_get());
+        }
+
+
         RenderFlag = renderTable[frame & 7];
         stella_step(&gamepad);
         //printf("stepped.\n");
 
-        //if (!(frame & 1))
-        //UBaseType_t count = uxQueueSpacesAvailable(vidQueue);
-        //if (count > 0)
+
         if (RenderFlag)
         {
             TIA& tia = console->tia();
@@ -801,7 +795,6 @@ extern "C" void app_main()
         // end of frame
         stopTime = xthal_get_ccount();
 
-        //previousState = joystick;
 
         odroid_battery_state battery;
         odroid_input_battery_level_read(&battery);
