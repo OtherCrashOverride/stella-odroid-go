@@ -938,6 +938,7 @@ void TIA::updateScanlineByTrace(int target)
 #endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+extern bool RenderFlag;
 IRAM_ATTR void TIA::updateFrame(Int32 clock)
 {
   // See if we've already updated this portion of the screen
@@ -1043,7 +1044,7 @@ IRAM_ATTR void TIA::updateFrame(Int32 clock)
     uInt8* oldFramePointer = myFramePointer;
 
     // Update as much of the scanline as we can
-    if(clocksToUpdate != 0)
+    if(clocksToUpdate != 0 && (RenderFlag))
     {
       // Calculate the ending frame pointer value
       uInt8* ending = myFramePointer + clocksToUpdate;

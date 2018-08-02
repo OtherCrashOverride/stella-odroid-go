@@ -665,6 +665,8 @@ void stella_step(odroid_gamepad_state* gamepad)
     odroid_audio_submit((int16_t*)sampleBuffer, tiaSamplesPerFrame);
 }
 
+
+bool RenderFlag;
 extern "C" void app_main()
 {
     printf("stella-go started.\n");
@@ -733,12 +735,14 @@ extern "C" void app_main()
             esp_restart();
         }
 
+        RenderFlag = frame & 1;
         stella_step(&gamepad);
         //printf("stepped.\n");
 
         //if (!(frame & 1))
-        UBaseType_t count = uxQueueSpacesAvailable(vidQueue);
-        if (count > 0)
+        //UBaseType_t count = uxQueueSpacesAvailable(vidQueue);
+        //if (count > 0)
+        if (RenderFlag)
         {
             TIA& tia = console->tia();
             uint8_t* fb = tia.currentFrameBuffer();
