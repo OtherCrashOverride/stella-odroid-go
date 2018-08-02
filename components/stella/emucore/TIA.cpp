@@ -527,7 +527,7 @@ bool TIA::loadDisplay(Serializer& in)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-void TIA::update()
+IRAM_ATTR void TIA::update()
 {
   // if we've finished a frame, start a new one
   if(!myPartialFrameFlag)

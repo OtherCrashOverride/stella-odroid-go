@@ -185,7 +185,8 @@ class TIATables
 
     // Indicates if player is being reset during delay, display or other times
     // [nusiz][old pixel][new pixel]
-    static const Int8 PxPosResetWhen[8][160][160];
+    //static const Int8 PxPosResetWhen[8][160][160];
+    static Int8* PxPosResetWhen[8][160];
 
   private:
     // Compute the collision decode table
