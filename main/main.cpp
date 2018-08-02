@@ -662,8 +662,9 @@ void stella_step(odroid_gamepad_state* gamepad)
     ev.set(Event::Type(Event::JoystickZeroLeft), gamepad->values[ODROID_INPUT_LEFT]);
     ev.set(Event::Type(Event::JoystickZeroRight), gamepad->values[ODROID_INPUT_RIGHT]);
     ev.set(Event::Type(Event::JoystickZeroFire), gamepad->values[ODROID_INPUT_A]);
-    ev.set(Event::Type(Event::ConsoleReset), gamepad->values[ODROID_INPUT_SELECT]);
-
+    ev.set(Event::Type(Event::ConsoleSelect), gamepad->values[ODROID_INPUT_SELECT]);
+    ev.set(Event::Type(Event::ConsoleReset), gamepad->values[ODROID_INPUT_START]);
+    
     //Tell all input devices to read their state from the event structure
     console->controller(Controller::Left).update();
     console->controller(Controller::Right).update();
