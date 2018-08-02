@@ -1561,10 +1561,12 @@ void ili9341_write_frame_lnx(uint16_t* buffer)
     send_continue_wait();
 }
 
-void ili9341_write_frame_atari2600(uint8_t* buffer, uint16_t* palette)
+void ili9341_write_frame_atari2600(uint8_t* buffer, uint16_t* palette, uint8_t isPal)
 {
-    static const short STELLA_WIDTH = 160;
-    static const short STELLA_HEIGHT = 210;
+    static const int STELLA_WIDTH = 160;
+    static const int STELLA_HEIGHT_NTSC = 210;
+    static const int STELLA_HEIGHT_PAL = 250;
+
 
     if (buffer == NULL)
     {
@@ -1585,10 +1587,28 @@ void ili9341_write_frame_atari2600(uint8_t* buffer, uint16_t* palette)
     }
     else
     {
-        send_reset_drawing(0, 120 - (STELLA_HEIGHT / 2), STELLA_WIDTH * 2, STELLA_HEIGHT);
+        int top;
+        int start_line;
+        int end_line;
+
+        if (isPal)
+        {
+            // LCD cant display entire PAL frame
+            top = 0;
+            start_line = (STELLA_HEIGHT_PAL - 240) / 2;
+            end_line = start_line + 240;
+        }
+        else
+        {
+            top = 120 - (STELLA_HEIGHT_NTSC / 2);
+            start_line = 0;
+            end_line = STELLA_HEIGHT_NTSC;
+        }
+
+        send_reset_drawing(0, top, STELLA_WIDTH * 2, end_line - start_line);
 
         int src_idx = 0;
-        for (int y = 0; y < STELLA_HEIGHT; y += 5)
+        for (int y = start_line; y < end_line; y += 5)
         {
             uint16_t* line_buffer = line_buffer_get();
             int dst_idx = 0; //i * 320 * sizeof(uint16_t);

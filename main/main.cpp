@@ -46,11 +46,12 @@ const char* SD_BASE_PATH = "/sd";
 QueueHandle_t vidQueue;
 
 #define STELLA_WIDTH 160
-#define STELLA_HEIGHT 210
+#define STELLA_HEIGHT 250
 //uint16_t* framebuffer; //[STELLA_WIDTH * STELLA_HEIGHT * sizeof(uint16_t)];
 //uint16_t framebuffer[STELLA_WIDTH * STELLA_HEIGHT];
 uint8_t framebuffer[STELLA_WIDTH * STELLA_HEIGHT];
 uint16_t pal16[256];
+bool IsPal;
 
 void videoTask(void *arg)
 {
@@ -64,7 +65,7 @@ void videoTask(void *arg)
 
         //ili9341_write_frame_rectangleLE(0, 0, STELLA_WIDTH, STELLA_HEIGHT, framebuffer);
         memcpy(framebuffer, param, sizeof(framebuffer));
-        ili9341_write_frame_atari2600(framebuffer, pal16);
+        ili9341_write_frame_atari2600(framebuffer, pal16, IsPal);
 
         xQueueReceive(vidQueue, &param, portMAX_DELAY);
 
@@ -593,6 +594,8 @@ void stella_init(const char* filename)
     TIA& tia = console->tia();
     int videoWidth = tia.width();
     int videoHeight = tia.height();
+
+    IsPal = (videoHeight > 210);
 
     printf("videoWidth = %d, videoHeight = %d\n", videoWidth, videoHeight);
     //framebuffer = (uint16_t*)malloc(videoWidth * videoHeight * 2);
