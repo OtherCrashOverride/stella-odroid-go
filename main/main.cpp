@@ -757,6 +757,12 @@ extern "C" void app_main()
     odroid_gamepad_state last_gamepad;
     odroid_input_gamepad_read(&last_gamepad);
 
+    static const bool renderTable[8] = {
+        true, false,
+        false, true,
+        true, false,
+        false, true };
+
     while(1)
     {
         startTime = xthal_get_ccount();
@@ -771,7 +777,7 @@ extern "C" void app_main()
             esp_restart();
         }
 
-        RenderFlag = frame & 1;
+        RenderFlag = renderTable[frame & 7];
         stella_step(&gamepad);
         //printf("stepped.\n");
 
