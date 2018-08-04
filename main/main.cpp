@@ -644,7 +644,7 @@ void stella_init(const char* filename)
 
 
         //rrrr rggg gggb bbbb
-        uint16_t rgb565 = ((r << 8) & 0xf800) | ((g << 3) & 0x7e00) | (b >> 3);
+        uint16_t rgb565 = ((r << 8) & 0xf800) | ((g << 3) & 0x07e0) | (b >> 3);
         //rgb565 = (rgb565 >> 8) | (rgb565 << 8);
         pal16[i] = rgb565;
     }
